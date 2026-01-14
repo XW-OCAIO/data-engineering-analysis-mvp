@@ -24,6 +24,27 @@ uv run python -m backend.ingest --db data/events.duckdb --csv data/sample.csv
 
 This prints the row count after ingest.
 
+## Sanity checks
+
+Run transform, then check raw and fact counts (PowerShell):
+
+```powershell
+uv run python -c "from backend.pipeline import run_pipeline; run_pipeline()"
+
+@'
+import duckdb
+
+conn = duckdb.connect("data/events.duckdb")
+try:
+    raw_count = conn.execute("SELECT COUNT(*) FROM raw_events").fetchone()[0]
+    fct_count = conn.execute("SELECT COUNT(*) FROM fct_events").fetchone()[0]
+    print(f"raw_events={raw_count}")
+    print(f"fct_events={fct_count}")
+finally:
+    conn.close()
+'@ | uv run python -
+```
+
 ## Verification
 
 Run ingest twice; row count should remain 50:
