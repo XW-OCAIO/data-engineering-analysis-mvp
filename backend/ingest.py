@@ -1,9 +1,13 @@
 ﻿from __future__ import annotations
 
 import argparse
+import csv
+from datetime import datetime
 from pathlib import Path
 
 from backend.db import get_connection
+
+REQUIRED_COLUMNS = {"event_time", "user_id", "event_name", "category", "amount"}
 
 
 def load_schema(schema_path: Path) -> str:
@@ -14,9 +18,40 @@ def create_raw_table(conn, schema_path: Path) -> None:
     conn.execute(load_schema(schema_path))
 
 
+def validate_csv(csv_path: Path) -> None:
+    with csv_path.open(encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None:
+            raise ValueError("CSV missing header row")
+        missing = REQUIRED_COLUMNS - set(reader.fieldnames)
+        if missing:
+            missing_list = ", ".join(sorted(missing))
+            raise ValueError(f"CSV missing required columns: {missing_list}")
+        for line_number, row in enumerate(reader, start=2):
+            event_time = row.get("event_time", "")
+            try:
+                datetime.fromisoformat(event_time)
+            except ValueError as exc:
+                raise ValueError(
+                    f"Invalid event_time at line {line_number}: {event_time}"
+                ) from exc
+            amount = row.get("amount", "")
+            try:
+                float(amount)
+            except ValueError as exc:
+                raise ValueError(f"Invalid amount at line {line_number}: {amount}") from exc
+
+
 def ingest_csv(conn, csv_path: Path) -> None:
     conn.execute(
-        "INSERT INTO raw_events SELECT * FROM read_csv_auto(?, header=True)",
+        """
+        WITH incoming AS (
+            SELECT * FROM read_csv_auto(?, header=True)
+        )
+        INSERT INTO raw_events
+        SELECT * FROM incoming
+        EXCEPT SELECT * FROM raw_events
+        """,
         [str(csv_path)],
     )
 
@@ -37,6 +72,7 @@ def main() -> None:
 
     conn = get_connection(db_path)
     try:
+        validate_csv(csv_path)
         create_raw_table(conn, schema_path)
         ingest_csv(conn, csv_path)
         print(f"row_count={get_row_count(conn)}")

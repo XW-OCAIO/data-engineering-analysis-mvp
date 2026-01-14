@@ -24,6 +24,15 @@ uv run python -m backend.ingest --db data/events.duckdb --csv data/sample.csv
 
 This prints the row count after ingest.
 
+## Verification
+
+Run ingest twice; row count should remain 50:
+
+```bash
+uv run python -m backend.ingest --db data/events.duckdb --csv data/sample.csv
+uv run python -m backend.ingest --db data/events.duckdb --csv data/sample.csv
+```
+
 ## Run the Streamlit app
 
 ```bash
