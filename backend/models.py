@@ -11,3 +11,9 @@ class Event(BaseModel):
     event_name: str
     category: str
     amount: float
+
+
+class Metrics(BaseModel):
+    total_events: int
+    total_users: int
+    total_amount: float
