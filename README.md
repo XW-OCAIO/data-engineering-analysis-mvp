@@ -24,6 +24,22 @@ uv run python -m backend.ingest --db data/events.duckdb --csv data/sample.csv
 
 This prints the row count after ingest.
 
+## Local Demo
+
+```bash
+uv run python -m backend.ingest --db data/events.duckdb --csv data/sample.csv
+uv run python -c "from backend.pipeline import run_pipeline; run_pipeline()"
+uv run streamlit run app/app.py
+```
+
+## Verify
+
+Rebuild DB, ingest sample data, run transforms, and run pytest:
+
+```bash
+uv run python -m backend.verify
+```
+
 ## Sanity checks
 
 Run transform, then check raw and fact counts (PowerShell):
