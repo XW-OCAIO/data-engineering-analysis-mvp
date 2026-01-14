@@ -1,0 +1,14 @@
+﻿[project]
+name = "data-engineering-analysis-mvp"
+version = "0.1.0"
+description = "MVP scaffold for CSV to DuckDB to Streamlit"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "duckdb>=0.9.2",
+    "pydantic>=2.6",
+    "streamlit>=1.31",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
