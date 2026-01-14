@@ -19,7 +19,7 @@ def create_raw_table(conn, schema_path: Path) -> None:
 
 
 def validate_csv(csv_path: Path) -> None:
-    with csv_path.open(encoding="utf-8", newline="") as handle:
+    with csv_path.open(encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
         if reader.fieldnames is None:
             raise ValueError("CSV missing header row")

@@ -4,15 +4,17 @@ from pathlib import Path
 
 from backend.db import get_connection
 
+BASE_DIR = Path(__file__).resolve().parents[1]
+
 
 def load_sql(sql_path: Path) -> str:
     return sql_path.read_text(encoding="utf-8")
 
 
-def run_pipeline(db_path: str | Path = "data/events.duckdb") -> None:
+def run_pipeline(db_path: str | Path = BASE_DIR / "data" / "events.duckdb") -> None:
     conn = get_connection(db_path)
     try:
-        transform_path = Path("backend/sql/010_fct_events.sql")
+        transform_path = BASE_DIR / "backend" / "sql" / "010_fct_events.sql"
         conn.execute(load_sql(transform_path))
     finally:
         conn.close()

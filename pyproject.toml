@@ -1,4 +1,4 @@
-﻿[project]
+[project]
 name = "data-engineering-analysis-mvp"
 version = "0.1.0"
 description = "MVP scaffold for CSV to DuckDB to Streamlit"
